@@ -1,13 +1,39 @@
-FLAGS=-g
+FLAGS=-Wall -Werror -Wextra
 
-all:
-	gcc $(FLAGS) -I./includes ./preflight/*.c ./rooms/*.c ./anthill/*.c -I./libft ./libft/libft.a main.c output/*.c links/*.c algorithm/*.c -o lemon
+NAME = lemin
+SRC_FILES = $(shell find src -name "*.c")
+DONE = @printf "\x1B[32mDone!\x1B[37m\n"
+LIBRARY = -L./lib/libft -lft
+INCLUDES = -I./includes
+RPAD = 45
 
-test:
-	./lemon < test_hill1.txt
+all: lemin
 
-rm:
-	$(RM) visi
+lemin: ./libft/libft.a ./includes/libft.h visualise
+	@printf "%-$(RPAD)s" "Compiling lemin executable. "
+	@$(CC) $(FLAGS) $(INCLUDES) $(LIBRARY) $(SRC_FILES) ./main.c -o $(NAME)
+	$(DONE)
 
-visi:
-	gcc ./visualiser/*.c -lSDL2 -o visi
+./libft/libft.a:
+	@printf "%-$(RPAD)s" "Compiling libft library. "
+	@$(MAKE) -s -C lib/libft
+	@$(MAKE) -s -C lib/libft clean
+	@printf "\x1B[32mDone!\x1B[37m\n"
+
+./includes/libft.h:
+	@printf "%-$(RPAD)s" "Copying libf.h to includes. "
+	@cp ./lib/libft/libft.h ./includes/
+	@printf "\x1B[32mDone!\x1B[37m\n"
+
+visualise:
+	@$(MAKE) -s -C visualiser
+
+clean:
+	@$(RM) lemin
+
+fclean: clean
+	@printf "Performing clean build. \n"
+	@$(RM) ./libft/libft.a
+	@$(RM) ./visualiser/visual
+
+re: fclean all
